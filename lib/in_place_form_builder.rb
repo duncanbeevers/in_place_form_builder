@@ -91,6 +91,7 @@ module InPlaceFormBuilderHelper
       static = options[:static]
       url = options.delete(:url) || {}
       html_options = options.delete(:html) || {}
+      options.reverse_merge!(:builder => InPlaceFormBuilder)
       form_contents = fields_for(object_name, *(args << options), &proc)
       if static
         form_contents
