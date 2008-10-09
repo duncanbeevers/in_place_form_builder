@@ -12,9 +12,6 @@ require 'action_view'
 
 require 'active_support/test_case'
 require 'action_controller/test_process'
-
-# require 'action_controller/base'
-# require 'action_controller/request_forgery_protection'
 require 'action_view/test_case'
 
 require 'ruby-debug'

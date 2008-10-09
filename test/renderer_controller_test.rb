@@ -1,6 +1,8 @@
 require File.join(File.dirname(__FILE__), 'test_helper')
 
 class RendererController < ActionController::Base
+  include InPlaceFormBuilderHelper
+  
   def render_template
     eval(params[:eval])
     render :inline => params[:template]
@@ -9,7 +11,7 @@ end
 
 class RendererControllerTest < ActionController::TestCase
   
-  def test_static_form_should_include_static_fields
+  def test_dynamic_form_should_include_editable_fields
     get :render_template,
       :eval => '@post = Post.new',
       :template => <<-END_TEMPLATE
@@ -17,10 +19,11 @@ class RendererControllerTest < ActionController::TestCase
         <h1><%= f.field(:title).static('static content').text_field -%></h1>
         <%- end -%>
         END_TEMPLATE
+    assert_select 'form[action=/posts]'
     assert_select 'h1>input[type=text]'
   end
 
-  def test_dynamic_form_should_include_editable_fields
+  def test_static_form_should_include_static_fields
     get :render_template,
       :eval => '@post = Post.new',
       :template => <<-END_TEMPLATE
@@ -28,6 +31,7 @@ class RendererControllerTest < ActionController::TestCase
         <h1><%= f.field(:title).static('static content').text_field -%></h1>
         <%- end -%>
         END_TEMPLATE
+    assert_select 'form', false
     assert_select 'h1', 'static content'
   end
   

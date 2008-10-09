@@ -56,3 +56,49 @@ class InPlaceFormBuilder < ActionView::Helpers::FormBuilder
   end
   
 end
+
+module InPlaceFormBuilderHelper
+  def self.included base
+    base.helper InPlaceFormBuilderViewHelper
+    super
+  end
+  
+  module InPlaceFormBuilderViewHelper
+    # This method is lifted essentially wholesale from
+    # ActionView::Helpers::FormHelper
+    # The underlying method could use some refactoring
+    # so I don't have to duplicate so much.
+    def form_for(record_or_name_or_array, *args, &proc)
+      raise ArgumentError, "Missing block" unless block_given?
+    
+      options = args.extract_options!
+    
+      case record_or_name_or_array
+      when String, Symbol
+        object_name = record_or_name_or_array
+      when Array
+        object = record_or_name_or_array.last
+        object_name = ActionController::RecordIdentifier.singular_class_name(object)
+        apply_form_for_options!(record_or_name_or_array, options)
+        args.unshift object
+      else
+        object = record_or_name_or_array
+        object_name = ActionController::RecordIdentifier.singular_class_name(object)
+        apply_form_for_options!([object], options)
+        args.unshift object
+      end
+      
+      static = options[:static]
+      url = options.delete(:url) || {}
+      html_options = options.delete(:html) || {}
+      form_contents = fields_for(object_name, *(args << options), &proc)
+      if static
+        form_contents
+      else
+        concat(form_tag(url, html_options), proc.binding)
+        form_contents
+        concat('</form>', proc.binding)
+      end
+    end
+  end
+end
