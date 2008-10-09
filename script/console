@@ -1,0 +1,20 @@
+#!/usr/bin/env ruby
+irb = RUBY_PLATFORM =~ /(:?mswin|mingw)/ ? 'irb.bat' : 'irb'
+
+require 'optparse'
+options = { :sandbox => false, :irb => irb }
+OptionParser.new do |opt|
+  opt.banner = "Usage: console [environment] [options]"
+  opt.on('-s', '--sandbox', 'Rollback database modifications on exit.') { |v| options[:sandbox] = v }
+  opt.on("--irb=[#{irb}]", 'Invoke a different irb.') { |v| options[:irb] = v }
+  opt.parse!(ARGV)
+end
+
+libs = [ 'test/test_helper.rb', 'script/console_app.rb' ]
+
+ENV['RAILS_ENV'] = 'test'
+
+puts "Loading #{ENV['RAILS_ENV']} environment (sort of))"
+
+lib_flags = libs.map { |lib| "-r #{lib} " }
+exec "#{options[:irb]} #{lib_flags} --simple-prompt"

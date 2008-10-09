@@ -1,0 +1,5 @@
+In-place Form Builder
+
+Specify InPlaceFormBuilder as the :builder option in your form_for
+Add :static => true to the form_for options to render the static view of your data.
+Omit the :static => true option to render the editable view of the data.
